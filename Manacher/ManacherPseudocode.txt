@@ -1,0 +1,57 @@
+INTEGER PROCEDURE PAL(D, N)
+    VALUE N; 
+    INTEGER N; 
+    INTEGER ARRAY D;
+BEGIN
+    INTEGER COUNT, ENP, MDP, BP;
+    INTEGER ARRAY M(1:N - 1);  // Auxiliary array to store palindrome lengths
+    
+    // Initialize pointers
+    ENP := 1;  // Cursor, initially points to the first character
+    PAL := 0;  // Result, will store the end position of the palindrome
+
+    WHILE ENP <= N DO
+        MDP := ENP - 1;  // Middle pointer (temporary center)
+        BP := MDP;  // Beginning pointer (mirror image about the center)
+        COUNT := 0;  // Counts the number of mirrored characters
+
+        // Try to expand the palindrome around the middle pointer
+        WHILE (BP > 0 AND D(ENP) = D(BP)) DO
+            COUNT := COUNT + 1;
+            ENP := ENP + 1;
+            BP := BP - 1;
+
+            // If a palindrome is found that reaches the beginning
+            IF BP = 0 THEN
+                PAL := ENP;
+                RETURN PAL;
+            END IF
+
+            // Stop if the cursor exceeds the input length
+            IF ENP > N THEN
+                RETURN PAL;
+            END IF
+        END WHILE
+
+        // Store the length of the palindrome centered at MDP
+        M(MDP) := COUNT;
+
+        // Adjust previous entries based on symmetry
+        FOR F := 1 TO COUNT DO
+            IF M(MDP - F) != COUNT - F THEN
+                M(MDP + F) := MIN(COUNT - F, M(MDP - F));
+            ELSE
+                MDP := MDP + F;
+                COUNT := COUNT - F;
+                BP := MDP - COUNT;
+                BREAK;  // Recalculate palindrome starting at the new center
+            END IF
+        END FOR
+
+        // Move the cursor to the next position and repeat
+        ENP := ENP + 1;
+    END WHILE
+
+    // Return 0 if no palindrome is found
+    RETURN PAL;
+END
